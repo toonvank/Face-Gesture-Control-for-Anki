@@ -1,14 +1,48 @@
 import os
-import time
+import sys
+import ctypes
+import importlib.util
+
+# Set up paths
+addon_dir = os.path.dirname(os.path.realpath(__file__))
+vendor_dir = os.path.join(addon_dir, "vendor")
+resources_dir = os.path.join(addon_dir, "resources")
+
+# Add vendor directory to Python path
+if vendor_dir not in sys.path:
+    sys.path.insert(0, vendor_dir)
+
+# Load DLLs from resources directory
+opencv_world = os.path.join(resources_dir, "opencv_world490.dll")
+if os.path.exists(opencv_world):
+    ctypes.CDLL(opencv_world)
+
+# Manually load specific modules if needed
+def load_module_from_vendor(module_name, file_name):
+    module_path = os.path.join(vendor_dir, file_name)
+    if os.path.exists(module_path):
+        spec = importlib.util.spec_from_file_location(module_name, module_path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+        return module
+    return None
+
+# Load numpy manually if necessary
+numpy_pyd = os.path.join(vendor_dir, "numpy", "core", "_multiarray_umath.cp311-win_amd64.pyd")
+if os.path.exists(numpy_pyd):
+    load_module_from_vendor("numpy", numpy_pyd)
+
+# Import third-party libraries from vendor
 import cv2
 import dlib
 import pyautogui
+import time
 
-# Define the start_gesture_control function
+from aqt import mw
+from aqt.qt import QAction
+
 def start_gesture_control():
-    addon_dir = os.path.dirname(os.path.realpath(__file__))
-    resources_dir = os.path.join(addon_dir, "resources")
-
     # Initialize Dlib's face detector and the facial landmark predictor
     face_detector = dlib.get_frontal_face_detector()
     predictor_path = os.path.join(resources_dir, "shape_predictor_68_face_landmarks.dat")
