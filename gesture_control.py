@@ -1,12 +1,18 @@
+import os
+import time
 import cv2
 import dlib
 import pyautogui
-import time
 
+# Define the start_gesture_control function
 def start_gesture_control():
+    addon_dir = os.path.dirname(os.path.realpath(__file__))
+    resources_dir = os.path.join(addon_dir, "resources")
+
     # Initialize Dlib's face detector and the facial landmark predictor
     face_detector = dlib.get_frontal_face_detector()
-    shape_predictor = dlib.shape_predictor("resources/shape_predictor.dat")
+    predictor_path = os.path.join(resources_dir, "shape_predictor_68_face_landmarks.dat")
+    shape_predictor = dlib.shape_predictor(predictor_path)
 
     # Start video capture
     cap = cv2.VideoCapture(0)
@@ -65,18 +71,17 @@ def start_gesture_control():
                     moved_far_left = False
                     last_horizontal_action_time = current_time
                 elif delta_x < -threshold_x and not moved_left:
-                    pyautogui.hotkey("1")  # Press '1' for grading a card as again
+                    pyautogui.press("1")  # Press '1' for grading a card as again
                     moved_left = True
                     moved_right = False
                     moved_far_left = False
                     last_horizontal_action_time = current_time
                 elif delta_x < -2 * threshold_x and not moved_far_left:
-                    pyautogui.press("ctrl", "z")  # Move left
+                    pyautogui.hotkey("ctrl", "z")  # Undo
                     moved_far_left = True
                     moved_left = False
                     moved_right = False
                     last_horizontal_action_time = current_time
-                
 
             # Check for vertical movements
             if delta_y > threshold_y:
