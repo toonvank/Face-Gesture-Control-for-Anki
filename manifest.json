@@ -1,0 +1,9 @@
+{
+    "name": "Face Gesture Control for Anki",
+    "version": "1.0",
+    "author": "Aarsh",
+    "description": "Control Anki with facial gestures using Dlib and OpenCV.",
+    "min_point_version": "2.1.0",
+    "max_point_version": "2.1.99"
+  }
+  
